@@ -2,3 +2,4 @@ c:\_Git\PumpkinLights1\bin\PumpkinLights1.dll
 c:\_Git\PumpkinLights1\bin\PumpkinLights1.pdb
 c:\_Git\PumpkinLights1\obj\Debug\PumpkinLights1.dll
 c:\_Git\PumpkinLights1\obj\Debug\PumpkinLights1.pdb
+c:\_Git\PumpkinLights1\obj\Debug\PumpkinLights1.csprojResolveAssemblyReference.cache

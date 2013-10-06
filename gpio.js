@@ -30,7 +30,25 @@ define(["require", "exports", "fs", 'events'], function(require, exports, __fs__
         }
     };
 
-    function writeFile(file, data, onsuccess, retries, onfail) {
+    function writeFile(file, data, retries) {
+        if (typeof retries === "undefined") { retries = 0; }
+        var error;
+        for (var x = 0; x <= retries; x++) {
+            try  {
+                fs.writeFileSync(file, data, { flag: 'w+' });
+                return;
+            } catch (e) {
+                logMessage('writeFile retrying ' + file);
+                error = e;
+            }
+        }
+        if (error) {
+            logError('writeFile: ' + file, error);
+
+            throw error;
+        }
+    }
+    function writeFileX(file, data, onsuccess, retries, onfail) {
         if (typeof retries === "undefined") { retries = 0; }
         //fs.writeFile(file, data, callback);
         var error;
@@ -82,8 +100,7 @@ else
             return this.direction;
         };
 
-        Pin.prototype.setDirection = function (dir, callback) {
-            var _this = this;
+        Pin.prototype.setDirection = function (dir) {
             //var self = this, path = this.PATH.DIRECTION;
             //if (typeof dir !== "string" || dir !== "in") dir = "out";
             this.direction = dir;
@@ -91,38 +108,37 @@ else
             var newDir = dir == PinDirection.output ? 'out' : 'in';
 
             logMessage('Setting direction "' + newDir + '" on gpio' + this.pinNum);
-            fs.readFile(this.path.direction, "utf-8", function (err, data) {
-                if (err)
-                    logError('readFile: ' + _this.path.direction, err);
+
+            try  {
+                var data = fs.readFileSync(this.path.direction, "utf-8");
 
                 if (newDir === data) {
                     logMessage('Current direction is already ' + dir);
                 } else {
-                    writeFile(_this.path.direction, newDir, function () {
-                        callback();
-                        if (dir === PinDirection.input) {
-                            // watch for value changes only for direction "in"
-                            // since we manually trigger event for "out" direction when setting value
-                            //self.valueWatcher = new FileWatcher(self.PATH.VALUE, self.interval, function (val) {
-                            //    val = parseInt(val, 10);
-                            //    self.value = val;
-                            //    self.emit("valueChange", val);
-                            //    self.emit("change", val);
-                            //});
-                        } else {
-                            // if direction is "out", try to clear the valueWatcher
-                            //if (self.valueWatcher) {
-                            //    self.valueWatcher.stop();
-                            //    self.valueWatcher = null;
-                            //}
-                        }
+                    writeFile(this.path.direction, newDir);
+
+                    if (dir === PinDirection.input) {
+                        // watch for value changes only for direction "in"
+                        // since we manually trigger event for "out" direction when setting value
+                        //self.valueWatcher = new FileWatcher(self.PATH.VALUE, self.interval, function (val) {
+                        //    val = parseInt(val, 10);
+                        //    self.value = val;
+                        //    self.emit("valueChange", val);
+                        //    self.emit("change", val);
+                        //});
+                    } else {
+                        // if direction is "out", try to clear the valueWatcher
+                        //if (self.valueWatcher) {
+                        //    self.valueWatcher.stop();
+                        //    self.valueWatcher = null;
                         //}
-                        //self.emit('directionChange', dir);
-                    }, 10);
+                    }
                 }
-            });
+            } catch (err) {
+                logError('readFile: ' + this.path.direction, err);
+            }
         };
-        Pin.prototype.open = function (dir, callback) {
+        Pin.prototype.open = function (dir) {
             var _this = this;
             logMessage('opening gpio' + this.path.pin);
 
@@ -130,67 +146,61 @@ else
                 // already exported, unexport and export again
                 logMessage('Header already exported');
 
-                this.setDirection(dir, callback);
+                this.setDirection(dir);
                 //return true;
                 //_unexport(n, function () { _export(n, fn); });
             } else {
                 var onSuccess = function () {
                     logMessage('opened gpio' + _this.pinNum);
 
-                    _this.setDirection(dir, callback);
+                    _this.setDirection(dir);
                 };
 
                 var onFail = function (err) {
-                    logMessage('Error: ' + err + ' will try to close and reopen...');
-                    _this.close(function () {
-                        logMessage('closed');
-
-                        writeFile(gpiopath + 'export', _this.pinNum, onSuccess);
-                    });
                 };
+                try  {
+                    writeFile(gpiopath + 'export', this.pinNum);
+                    onSuccess();
+                } catch (err) {
+                    logMessage('Error: ' + err + ' will try to close and reopen...');
+                    this.close();
 
-                writeFile(gpiopath + 'export', this.pinNum, onSuccess, 0, onFail);
+                    writeFile(gpiopath + 'export', this.pinNum);
+                    onSuccess();
+                }
             }
         };
 
-        Pin.prototype.write = function (value, callback) {
-            var _this = this;
+        Pin.prototype.write = function (value) {
             if (this.direction == PinDirection.output) {
                 if (this.value !== value) {
                     var iValue = value ? "1" : "0";
-                    writeFile(this.path.value, iValue, function () {
-                        _this.value = value;
-                        _this.emit('valueChange', iValue);
-                        _this.emit('change', iValue);
-                        if (typeof callback === 'function')
-                            callback();
-                    }, 10);
+                    writeFile(this.path.value, iValue);
+                    this.value = value;
+                    this.emit('valueChange', iValue);
+                    this.emit('change', iValue);
                 }
             } else {
                 logMessage('cannot write: pin direction set to in');
             }
         };
 
-        Pin.prototype.read = function (callback) {
-            var _this = this;
-            fs.readFile(this.path.value, "utf-8", function (err, data) {
-                if (err) {
-                    err['path'] = _this.path.value;
-                    err['action'] = 'read';
-                    logError('readFile: ' + _this.path.value, err);
-                } else {
-                    if (typeof callback === "function")
-                        callback(data);
-else
-                        logMessage("value: ", data);
-                }
-            });
-        };
-
-        Pin.prototype.close = function (callback) {
+        //public read(callback: (value: number) => void) {
+        //    fs.readFile(this.path.value, "utf-8", (err, data) => {
+        //        if (err) {
+        //            err['path'] = this.path.value;
+        //            err['action'] = 'read';
+        //            logError('readFile: ' + this.path.value, err);
+        //        } else {
+        //            if (typeof callback === "function") callback(data);
+        //            else logMessage("value: ", data);
+        //        }
+        //    });
+        //}
+        Pin.prototype.close = function () {
             logMessage('closing gpio' + this.pinNum);
 
-            writeFile(gpiopath + 'unexport', this.pinNum, callback, 10);
+            writeFile(gpiopath + 'unexport', this.pinNum, 10);
         };
         return Pin;
     })(events.EventEmitter);
