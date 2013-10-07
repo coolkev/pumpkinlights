@@ -8,7 +8,7 @@ requirejs.config({
     //gpio: './gpio.js'
 });
 
-requirejs(['./app.js'],
+requirejs(['./server.js'],
 function (app) {
     //foo and bar are loaded according to requirejs
     //config, but if not found, then node's require

@@ -1,3 +1,11 @@
+(process.stdin).setRawMode(true);
+
+process.stdin.on('keypress', function (letter, key) {
+    if (letter) {
+        //console.log("keypress letter:" + letter);
+    }
+});
+
 wiringpi = require("wiringpi");
 
 wiringpi.wiringPiSetup();
@@ -34,4 +42,11 @@ for (var x = 0; x < 8; x++) {
 }
 
 wiringpi.digitalWrite(latchPin, wiringpi.HIGH);
+
+var rl = require('readline');
+var prompts = rl.createInterface(process.stdin, process.stdout);
+
+prompts.question("Hit Enter to exit...", function () {
+    process.exit();
+});
 //# sourceMappingURL=app.js.map

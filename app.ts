@@ -1,4 +1,16 @@
 
+(<any>process.stdin).setRawMode(true);
+
+process.stdin.on('keypress', function (letter, key) {
+
+
+    if (letter) {
+
+        //console.log("keypress letter:" + letter);
+
+    }
+});
+
 
 wiringpi = require("wiringpi");
 
@@ -15,9 +27,9 @@ wiringpi.pinMode(latchPin, wiringpi.OUTPUT);
 wiringpi.pinMode(clockPin, wiringpi.OUTPUT);
 wiringpi.pinMode(dataPin, wiringpi.OUTPUT);
 
-    wiringpi.digitalWrite(latchPin, wiringpi.LOW);
+wiringpi.digitalWrite(latchPin, wiringpi.LOW);
 
-    var toTurnOn = process.argv.splice(2);
+var toTurnOn = process.argv.splice(2);
 
 for (var x = 0; x < 8; x++) {
 
@@ -35,4 +47,13 @@ for (var x = 0; x < 8; x++) {
 }
 
 
-    wiringpi.digitalWrite(latchPin, wiringpi.HIGH);
+wiringpi.digitalWrite(latchPin, wiringpi.HIGH);
+
+
+ var rl = require('readline');
+    var prompts = rl.createInterface(process.stdin, process.stdout);
+
+    prompts.question("Hit Enter to exit...", function () {
+             process.exit();
+        
+    });

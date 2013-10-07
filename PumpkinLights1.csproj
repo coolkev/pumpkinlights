@@ -18,8 +18,10 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="app.js" />
+    <Content Include="index.html" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
+    <TypeScriptCompile Include="server.ts" />
     <Content Include="start.js" />
     <TypeScriptCompile Include="wiringpi.d.ts" />
     <Content Include="default.htm" />
@@ -62,7 +64,7 @@
     <TypeScriptTarget>ES3</TypeScriptTarget>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
+    <!--<TypeScriptModuleKind>AMD</TypeScriptModuleKind>-->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES3</TypeScriptTarget>
@@ -72,6 +74,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy C:\_Git\PumpkinLights1\*.js Z:\pumpkinlights1 /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy C:\_Git\PumpkinLights1\*.js Z:\app /Y
+xcopy C:\_Git\PumpkinLights1\*.html Z:\app /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>
