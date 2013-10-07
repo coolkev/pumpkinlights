@@ -1,78 +1,38 @@
-import gpio = require("gpio")
 
-//var pinNum = parseInt(process.argv[2]);
-//var value = parseInt(process.argv[3])==1;
 
-var pin = new gpio.Pin(4);
-pin.open(gpio.PinDirection.output);
-pin.write(true);
-pin.close();
+wiringpi = require("wiringpi");
+
+wiringpi.wiringPiSetup();
 
 //Pin connected to ST_CP of 74HC595
-//var latchPin = new gpio.Pin(17); // 8;
+var latchPin = 7; // 04
 ////Pin connected to SH_CP of 74HC595
-//var clockPin = new gpio.Pin(21);
+var clockPin = 11; //CS1
 //////Pin connected to DS of 74HC595
-//var dataPin = new gpio.Pin(18);
+var dataPin = 12; //MOSI
 
-//latchPin.open(gpio.PinDirection.output);
-//clockPin.open(gpio.PinDirection.output);
-//dataPin.open(gpio.PinDirection.output);
+wiringpi.pinMode(latchPin, wiringpi.OUTPUT);
+wiringpi.pinMode(clockPin, wiringpi.OUTPUT);
+wiringpi.pinMode(dataPin, wiringpi.OUTPUT);
 
-//latchPin.write(false);
+    wiringpi.digitalWrite(latchPin, wiringpi.LOW);
 
-//clockPin.write(false);
-//dataPin.write(true);
-//clockPin.write(true);
+    var toTurnOn = process.argv.splice(2);
 
-//latchPin.write(true);
+for (var x = 0; x < 8; x++) {
 
+    var turnOn = false;
+    for (var y = 0; y < toTurnOn.length; y++) {
+        if (<any>toTurnOn[y] == x+1) {
+            turnOn = true;
+            break;
+        }
+    }
 
-
-
-//latchPin.close();
-//clockPin.close();
-//dataPin.close();
-//latchPin.open();
-
-//async.forEach
-
-//var pin = new gpio.Pin(pinNum);
-//var intervalTimer;
-
-//pin.open(gpio.PinDirection.output, () => {
-
-//    //for (var x = 0;
-//    //pin.write(value, () =>
-//    //    pin.close());
-
-//    intervalTimer= setInterval(() => {
-                
-//        pin.write(value);
-//        value = !value;
-
-//    },50);
+    wiringpi.digitalWrite(clockPin, wiringpi.LOW);
+    wiringpi.digitalWrite(dataPin, turnOn ? wiringpi.HIGH : wiringpi.LOW);
+    wiringpi.digitalWrite(clockPin, wiringpi.HIGH);
+}
 
 
-//});
-
-
-
-//var rl = require('readline');
-//var prompts = rl.createInterface(process.stdin, process.stdout);
-
-
-//prompts.question("Hit Enter to exit...", function () {
-
-//    clearInterval(intervalTimer);
-
-//    //child.kill();
-
-//    pin.write(false, () => {
-//        pin.close(() => {
-
-//            process.exit();
-//        });
-//    });
-
-//});
+    wiringpi.digitalWrite(latchPin, wiringpi.HIGH);

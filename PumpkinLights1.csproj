@@ -18,11 +18,10 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="app.js" />
-    <Content Include="gpio.js" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
     <Content Include="start.js" />
-    <TypeScriptCompile Include="gpio.ts" />
+    <TypeScriptCompile Include="wiringpi.d.ts" />
     <Content Include="default.htm" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
   </ItemGroup>

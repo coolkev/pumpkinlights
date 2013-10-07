@@ -8,20 +8,11 @@ requirejs.config({
     //gpio: './gpio.js'
 });
 
-requirejs(['wiringpi'],
-function (wiringpi) {
+requirejs(['./app.js'],
+function (app) {
     //foo and bar are loaded according to requirejs
     //config, but if not found, then node's require
     //is used to load the module.
   
-    wiringpi.wiringPiSetup();
-    wiringpi.pinMode(7, wiringpi.OUTPUT);
-
-    for (var x = 0; x < 5000; x++) {
-        wiringpi.digitalWrite(7, wiringpi.HIGH);
-
-        wiringpi.digitalWrite(7, wiringpi.LOW);
-    }
-    
 
 });
