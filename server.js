@@ -112,14 +112,5 @@ http.createServer(function (req, resp) {
             }
         });
     }
-}).listen(8080);
-
-//Pin connected to ST_CP of 74HC595
-var latchPin = 7;
-
-////Pin connected to SH_CP of 74HC595
-var clockPin = 11;
-
-//////Pin connected to DS of 74HC595
-var dataPin = 12;
+}).listen(80);
 //# sourceMappingURL=server.js.map
