@@ -17,21 +17,33 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
-    <Content Include="app.js" />
-    <Content Include="index.html" />
+    <Content Include="ShiftRegister.js" />
+    <TypeScriptCompile Include="server.ts" />
+    <TypeScriptCompile Include="ShiftRegister.ts" />
+    <Content Include="package.json" />
+    <Content Include="public\index.html" />
+    <TypeScriptCompile Include="Scripts\typings\express\express.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="public\js\app.ts" />
+    <Content Include="public\js\app.js" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
-    <TypeScriptCompile Include="server.ts" />
-    <Content Include="start.js" />
-    <TypeScriptCompile Include="wiringpi.d.ts" />
-    <Content Include="default.htm" />
+    <TypeScriptCompile Include="server2.ts" />
+    <TypeScriptCompile Include="Scripts\typings\wiringpi.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="app.ts" />
+    <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -64,7 +76,7 @@
     <TypeScriptTarget>ES3</TypeScriptTarget>
     <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
-    <!--<TypeScriptModuleKind>AMD</TypeScriptModuleKind>-->
+    <TypeScriptModuleKind>CommonJS</TypeScriptModuleKind>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES3</TypeScriptTarget>
@@ -74,7 +86,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy C:\_Git\PumpkinLights1\*.js Z:\app /Y
-xcopy C:\_Git\PumpkinLights1\*.html Z:\app /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy C:\_Git\PumpkinLights1\*.js \\pi\pi\app /Y
+xcopy C:\_Git\PumpkinLights1\public \\pi\pi\app\public /Y /E /I</PostBuildEvent>
   </PropertyGroup>
 </Project>

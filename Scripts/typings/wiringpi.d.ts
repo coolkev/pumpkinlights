@@ -1,4 +1,4 @@
-declare module wiringpi{
+declare module "wiringpi" {
 
 
     function wiringPiSetup(): number;
