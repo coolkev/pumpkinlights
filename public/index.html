@@ -2,25 +2,51 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Pumpkin Lights</title>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     
-    <script src="js/app.js">
+<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1">
 
-    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <!--<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>-->
+
+    <script src="js/socket.io.js"></script>
+    <script src="js/app.js"></script>
+    <style>
+        
+        .btn-block {
+            margin: 0 !important;
+        }
+    </style>
 </head>
-    <body>
+    <body style="max-width:400px">
     
-        
-        
         <div class="lights">
-            <label><input type="checkbox" value="0" /> All </label>
+            <label class="btn btn-default btn-block btn-lg">
+                All
+            </label>
+            <label class="btn btn-default btn-block btn-lg">
+                White
+            </label>
+            <label class="btn btn-danger btn-block btn-lg">
+                Red
+            </label>
+            <label class="btn btn-primary btn-block btn-lg">
+                Blue
+            </label>
+            <label class="btn btn-success btn-block btn-lg">
+                Green
+            </label>
+            <label class="btn btn-warning btn-block btn-lg">
+                Yellow
+            </label>
         </div>
+
         
-        
-        
-        <input type="button" id="playmusic" value="Play"/>
-        <input type="button" id="stopmusic" value="Stop"/>
-        
+        <div style="margin-top:40px;">
+            <input type="button" id="playmusic" value="Play" class="btn btn-success btn-block btn-lg"/>
+            <input type="button" id="stopmusic" value="Stop" class="btn btn-danger btn-block btn-lg"/>
+        </div>
+
         
         
         <div id="keylog"></div>

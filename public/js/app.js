@@ -1,16 +1,15 @@
 var pumpkinlights;
 (function (pumpkinlights) {
     $(document).ready(function () {
-        for (var x = 0; x < 8; x++) {
-            $('.lights').append($('<label><input type="checkbox" value="' + (x + 1) + '" /> ' + (x + 1) + '</label>'));
-        }
+        var socket = io.connect('http://192.168.0.55/');
 
-        $('.lights input').click(function () {
-            $.get('/light/' + this.value + '/' + (this.checked ? 'on' : 'off'));
+        var touchevent = navigator.userAgent.match('iPhone') ? 'touchstart' : 'mousedown';
 
-            if (this.value == 0) {
-                $('.lights input:gt(0)').prop('checked', this.checked);
-            }
+        //var state: boolean[] = [];
+        $('.lights label').each(function (i, e) {
+            $(e).bind(touchevent, function () {
+                socket.emit('togglelight', { number: i });
+            });
         });
 
         $('#playmusic').click(function () {
@@ -23,9 +22,10 @@ var pumpkinlights;
 
         $(document).keydown(function (evt) {
             if (evt.which >= 96 && evt.which <= 104) {
-                var index = evt.which - 96;
-                var chk = $('.lights input:eq(' + index + ')');
-                chk.click();
+                var i = evt.which - 96;
+
+                //state[i] = !state[i];
+                socket.emit('togglelight', { number: i });
             }
         });
     });

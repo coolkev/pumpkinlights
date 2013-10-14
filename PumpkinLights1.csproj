@@ -17,6 +17,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="app.css" />
+    <Content Include="public\js\socket.io.js" />
+    <Content Include="Scripts\typings\bootstrap\bootstrap.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\socket.io\socket.io.d.ts" />
     <Content Include="ShiftRegister.js" />
     <TypeScriptCompile Include="server.ts" />
     <TypeScriptCompile Include="ShiftRegister.ts" />
@@ -28,7 +31,6 @@
     <Content Include="public\js\app.js" />
     <Content Include="Scripts\r.js" />
     <Content Include="Scripts\require.js" />
-    <TypeScriptCompile Include="server2.ts" />
     <TypeScriptCompile Include="Scripts\typings\wiringpi.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
   </ItemGroup>

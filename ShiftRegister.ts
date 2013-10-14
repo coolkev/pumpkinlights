@@ -36,25 +36,30 @@ import wiringpi = require('wiringpi');
 
         }
 
-        public toggleAll(value: boolean) {
+        public toggleAll() {
+
+
+            var value = !(this.prevValues[1] || this.prevValues[2] || this.prevValues[3] || this.prevValues[4] || this.prevValues[5]);
 
             this.prevValues = [value, value, value, value, value, value, value, value];
-            this.toggle(0, value);
+            this.toggle(0);
         }
 
-        public toggle(lightNum: number, value: boolean) {
+        public toggle(lightNum: number) {
 
+            //var value = !this.prevValues[lightNum];
 
             wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
 
-            console.log("toggleLight: ", lightNum, value);
+            //console.log("toggleLight: ", lightNum, value);
 
             for (var x = 0; x < 8; x++) {
 
                 var curValue;
                 if (lightNum == x + 1) {
-                    curValue = value;
-                    this.prevValues[x] = value;
+                    curValue = !this.prevValues[x];
+                    console.log("toggleLight: ", lightNum, curValue);
+                    this.prevValues[x] = curValue;
 
                 }
                 else {

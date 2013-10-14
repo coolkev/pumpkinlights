@@ -21,19 +21,19 @@ app.set('port', process.env.PORT || 80);
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-app.get('/light/:number/:dir', function(req, res){
+//app.get('/light/:number/:dir', function(req, res){
 
-    var lightNum = req.params.number;
+//    var lightNum = req.params.number;
 
-    var value =req.params.dir == 'on';
+//    var value =req.params.dir == 'on';
     
-    if (lightNum == 0)
-        shiftRegister.toggleAll(value);
-    else 
-        shiftRegister.toggle(lightNum, value);
+//    if (lightNum == 0)
+//        shiftRegister.toggleAll(value);
+//    else 
+//        shiftRegister.toggle(lightNum, value);
 
-    res.json({ success: true });
-});
+//    res.json({ success: true });
+//});
 
 app.get('/music/:action', function (req, res) {
     
@@ -42,12 +42,16 @@ app.get('/music/:action', function (req, res) {
     if (start) {
         console.log('starting music');
 
+        if (musicChild)
+            musicChild.kill();
+
         musicChild = spawn('mpg321', [apppath + 'The Nightmare Before Christmas - This is Halloween.mp3']);
     }
     else if (musicChild) {
         console.log('stopping music');
 
         musicChild.kill();
+        musicChild = null;
     }
 
     res.json({ success: true });
@@ -55,6 +59,23 @@ app.get('/music/:action', function (req, res) {
 
 });
 
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app);
+server.listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
+});
+
+import io = require("socket.io");
+
+io.listen(server).sockets.on('connection', function (socket) {
+  //socket.emit('news', { hello: 'world' });
+  socket.on('togglelight', function (data) {
+      console.log(data);
+
+      
+    if (data.number == 0)
+        shiftRegister.toggleAll();
+    else 
+        shiftRegister.toggle(data.number);
+
+  });
 });
