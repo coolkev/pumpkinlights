@@ -8,7 +8,7 @@ import wiringpi = require('wiringpi');
 
         private prevValues: boolean[] = [];
 
-        constructor(private latchPin: number, private clockPin: number, private dataPin: number) {
+        constructor(private latchPin: number, private clockPin: number, private dataPin: number, private registerCount = 8) {
 
             this.initLights();
         }
@@ -24,7 +24,7 @@ import wiringpi = require('wiringpi');
             wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
 
 
-            for (var x = 0; x < 8; x++) {
+            for (var x = 0; x < this.registerCount; x++) {
 
                 wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
                 wiringpi.digitalWrite(this.dataPin, wiringpi.LOW);
@@ -32,16 +32,24 @@ import wiringpi = require('wiringpi');
                 this.prevValues[x] = false;
             }
 
+            wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
 
 
         }
 
         public toggleAll() {
 
-
-            var value = !(this.prevValues[1] || this.prevValues[2] || this.prevValues[3] || this.prevValues[4] || this.prevValues[5]);
-
-            this.prevValues = [value, value, value, value, value, value, value, value];
+            var value = true;
+            for (var x = 0; x < this.registerCount; x++) {
+                if (this.prevValues[x]) {
+                    value = false;
+                    break;
+                }
+            }
+            
+            for (x = 0; x < this.registerCount; x++) {
+                this.prevValues[x] = value;
+            }
             this.toggle(0);
         }
 
@@ -53,7 +61,7 @@ import wiringpi = require('wiringpi');
 
             //console.log("toggleLight: ", lightNum, value);
 
-            for (var x = 0; x < 8; x++) {
+            for (var x = 0; x < this.registerCount; x++) {
 
                 var curValue;
                 if (lightNum == x + 1) {

@@ -13,7 +13,7 @@ var apppath = '/home/pi/app/';
 var spawn = require('child_process').spawn;
 var musicChild;
 
-var shiftRegister = new shiftregister.ShiftRegister(7, 11, 12);
+var shiftRegister = new shiftregister.ShiftRegister(7, 11, 12, 16);
 
 var app = express();
 app.set('port', process.env.PORT || 80);

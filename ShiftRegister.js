@@ -2,10 +2,12 @@ var wiringpi = require('wiringpi');
 
 //export module shiftregister {
 var ShiftRegister = (function () {
-    function ShiftRegister(latchPin, clockPin, dataPin) {
+    function ShiftRegister(latchPin, clockPin, dataPin, registerCount) {
+        if (typeof registerCount === "undefined") { registerCount = 8; }
         this.latchPin = latchPin;
         this.clockPin = clockPin;
         this.dataPin = dataPin;
+        this.registerCount = registerCount;
         this.prevValues = [];
         this.initLights();
     }
@@ -18,18 +20,28 @@ var ShiftRegister = (function () {
 
         wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
 
-        for (var x = 0; x < 8; x++) {
+        for (var x = 0; x < this.registerCount; x++) {
             wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
             wiringpi.digitalWrite(this.dataPin, wiringpi.LOW);
             wiringpi.digitalWrite(this.clockPin, wiringpi.HIGH);
             this.prevValues[x] = false;
         }
+
+        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
     };
 
     ShiftRegister.prototype.toggleAll = function () {
-        var value = !(this.prevValues[1] || this.prevValues[2] || this.prevValues[3] || this.prevValues[4] || this.prevValues[5]);
+        var value = true;
+        for (var x = 0; x < this.registerCount; x++) {
+            if (this.prevValues[x]) {
+                value = false;
+                break;
+            }
+        }
 
-        this.prevValues = [value, value, value, value, value, value, value, value];
+        for (x = 0; x < this.registerCount; x++) {
+            this.prevValues[x] = value;
+        }
         this.toggle(0);
     };
 
@@ -37,7 +49,7 @@ var ShiftRegister = (function () {
         //var value = !this.prevValues[lightNum];
         wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
 
-        for (var x = 0; x < 8; x++) {
+        for (var x = 0; x < this.registerCount; x++) {
             var curValue;
             if (lightNum == x + 1) {
                 curValue = !this.prevValues[x];
