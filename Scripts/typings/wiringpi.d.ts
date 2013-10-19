@@ -13,5 +13,10 @@ declare module "wiringpi" {
     
     export var HIGH: number;
     export var LOW: number;
+    export var LSBFIRST: number;
+    export var MSBFIRST: number;
+     
+    
+    function shiftOut(dataPin: number, clockPin: number, order: number, value: number);
 
 }

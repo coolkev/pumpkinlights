@@ -33,16 +33,30 @@ module pumpkinlights {
 
         });
 
-
+        var keyDown: boolean[] = [];
         $(document).keydown(function (evt) {
             //96 = 0
 
             if (evt.which >= 96 && evt.which <= 104) {
                 var i = evt.which - 96;
-                //state[i] = !state[i];
-                
-                socket.emit('togglelight', { number: i });
 
+                if (!keyDown[i]) {
+                    socket.emit('togglestart', { number: i });
+                    keyDown[i] = true;
+                }
+            }
+
+        });
+         $(document).keyup(function (evt) {
+            //96 = 0
+
+            if (evt.which >= 96 && evt.which <= 104) {
+                var i = evt.which - 96;
+
+                if (keyDown[i]) {
+                    socket.emit('toggleend', { number: i });
+                    keyDown[i] = false;
+                }
             }
 
         });

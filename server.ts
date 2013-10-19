@@ -67,15 +67,49 @@ server.listen(app.get('port'), function () {
 import io = require("socket.io");
 
 io.listen(server).sockets.on('connection', function (socket) {
-  //socket.emit('news', { hello: 'world' });
-  socket.on('togglelight', function (data) {
-      console.log(data);
+    //socket.emit('news', { hello: 'world' });
+    socket.on('togglelight', function (data) {
+        console.log(data);
 
-      
-    if (data.number == 0)
-        shiftRegister.toggleAll();
-    else 
-        shiftRegister.toggle(data.number);
 
-  });
+        if (data.number == 0)
+            shiftRegister.toggleAll();
+        else
+            shiftRegister.toggle(data.number);
+
+    });
+
+    var flickerTimers: number[] = [];
+    socket.on('togglestart', function (data) {
+
+        var lightNum = data.number;
+
+        var flickr = () => {
+            shiftRegister.toggle(data.number);
+
+            var rnd = Math.floor((Math.random()*40)+10);
+
+            flickerTimers[data.number] = setTimeout(flickr, rnd);
+        };
+
+        shiftRegister.on(lightNum);
+
+        flickerTimers[data.number] = setTimeout(flickr, 500);       
+            
+
+    });
+
+    socket.on('toggleend', function (data) {
+
+        //shiftRegister.toggle(data.number);
+
+        clearTimeout(flickerTimers[data.number]);
+        flickerTimers[data.number] = null;
+        shiftRegister.off(data.number);
+
+    });
+
+
+
+
 });

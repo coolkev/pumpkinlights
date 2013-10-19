@@ -20,12 +20,25 @@ var pumpkinlights;
             $.get('/music/stop');
         });
 
+        var keyDown = [];
         $(document).keydown(function (evt) {
             if (evt.which >= 96 && evt.which <= 104) {
                 var i = evt.which - 96;
 
-                //state[i] = !state[i];
-                socket.emit('togglelight', { number: i });
+                if (!keyDown[i]) {
+                    socket.emit('togglestart', { number: i });
+                    keyDown[i] = true;
+                }
+            }
+        });
+        $(document).keyup(function (evt) {
+            if (evt.which >= 96 && evt.which <= 104) {
+                var i = evt.which - 96;
+
+                if (keyDown[i]) {
+                    socket.emit('toggleend', { number: i });
+                    keyDown[i] = false;
+                }
             }
         });
     });

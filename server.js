@@ -65,6 +65,30 @@ io.listen(server).sockets.on('connection', function (socket) {
 else
             shiftRegister.toggle(data.number);
     });
+
+    var flickerTimers = [];
+    socket.on('togglestart', function (data) {
+        var lightNum = data.number;
+
+        var flickr = function () {
+            shiftRegister.toggle(data.number);
+
+            var rnd = Math.floor((Math.random() * 40) + 10);
+
+            flickerTimers[data.number] = setTimeout(flickr, rnd);
+        };
+
+        shiftRegister.on(lightNum);
+
+        flickerTimers[data.number] = setTimeout(flickr, 500);
+    });
+
+    socket.on('toggleend', function (data) {
+        //shiftRegister.toggle(data.number);
+        clearTimeout(flickerTimers[data.number]);
+        flickerTimers[data.number] = null;
+        shiftRegister.off(data.number);
+    });
 });
 
 //# sourceMappingURL=server.js.map
