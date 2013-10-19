@@ -91,6 +91,14 @@ var Pin = (function () {
         this.num = num;
         this.write = write;
         this._state = false;
+        //static Flicker_table = [10, 10, 10, 10, 20, 30, 30, 30, 40, 50, 60, 70, 80, 90, 100, // The table for our normal glowing
+        //    110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+        //    210, 220, 230, 240, 250, 250, 250, 250, 250, 250,
+        //    240, 230, 220, 210, 200, 190, 180, 170, 160, 150,
+        //    140, 130, 120, 110, 100, 90, 80, 70, 60, 50,
+        //    40, 30, 30, 30, 20, 10, 10, 10, 10];
+        this.maxDelay = 8000;
+        this.multiplier = this.maxDelay / 250;
         //this._bitValue = Math.pow(2, num);
     }
     //public bitValue() {
@@ -106,6 +114,12 @@ var Pin = (function () {
 
     Pin.prototype.off = function () {
         this.setState(false);
+
+        if (this.flickerTimer) {
+            clearTimeout(this.flickerTimer);
+            clearImmediate(this.flickerTimer);
+            this.flickerTimer = null;
+        }
     };
 
     Pin.prototype.setState = function (value) {
@@ -119,22 +133,13 @@ var Pin = (function () {
 
     Pin.prototype.flickerStart = function (brightness) {
         var _this = this;
-        this.setState(true);
-
-        this.flickerBrightness = 0;
-
-        //this.flickerBrightness = Math.min(brightness,10);
-        //this.on();
-        this.flickerTimer = setTimeout(function () {
-            return _this.flickerRoutine();
-        }, 1000);
-
-        //this.flickerRoutine();
-        //setTimeout(() => {
-        //}, 100);
         var rndTimer;
         var rndCounter = Math.floor((Math.random() * Pin.Flicker_table.length));
         ;
+
+        this.flickerBrightness = Pin.Flicker_table[rndCounter];
+
+        this.flickerRoutine();
 
         var rndChanger = function () {
             if (rndCounter >= Pin.Flicker_table.length - 1)
@@ -142,34 +147,25 @@ var Pin = (function () {
 else
                 rndCounter++;
 
-            //this.flickerBrightness = Math.floor((Math.random() * 10)+1);
             _this.flickerBrightness = Pin.Flicker_table[rndCounter];
 
-            var rndDelay = Math.floor((Math.random() * 40) + 10);
+            var rndDelay = Math.floor((Math.random() * 50) + 20);
 
             if (_this.flickerTimer)
                 rndTimer = setTimeout(rndChanger, rndDelay);
         };
-        rndTimer = setTimeout(rndChanger, 1000);
-        //this.flickerCounter = 0;
-    };
-
-    Pin.prototype.flickerStop = function () {
-        this.setState(false);
-        clearTimeout(this.flickerTimer);
-        clearImmediate(this.flickerTimer);
-        this.flickerTimer = null;
+        rndTimer = setTimeout(rndChanger, 500);
     };
 
     Pin.prototype.flickerRoutine = function () {
         var _this = this;
         this.on();
 
-        wiringpi.delayMicroseconds(this.flickerBrightness * 40);
+        wiringpi.delayMicroseconds(this.flickerBrightness * this.multiplier);
 
         this.off();
 
-        wiringpi.delayMicroseconds(10000 - (this.flickerBrightness * 40));
+        wiringpi.delayMicroseconds(this.maxDelay - (this.flickerBrightness * this.multiplier));
 
         this.flickerTimer = setImmediate(function () {
             return _this.flickerRoutine();

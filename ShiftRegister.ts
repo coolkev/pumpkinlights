@@ -195,6 +195,12 @@ export class Pin {
 
         this.setState(false);
 
+        if (this.flickerTimer) {
+            clearTimeout(this.flickerTimer);
+            clearImmediate(this.flickerTimer);
+            this.flickerTimer = null;
+        }
+
     }
 
 
@@ -216,24 +222,34 @@ export class Pin {
     private flickerBrightness: number;
 
 
-    static Flicker_table = [10, 10, 20, 30, 30, 30, 40, 50, 60, 70, 80, 70, 70,     // the table that tells us how to flicker
+    static Flicker_table = [10, 10, 20, 30, 30, 30, 40, 50, 60, 70, 80, 70, 70,  
         60, 60, 50, 50, 50, 60, 70, 80, 90, 100,
         120, 140, 160, 240, 250, 100, 150, 250, 250, 140,
         240, 230, 220, 100, 80, 70, 70, 70, 80, 80,
         140, 130, 120, 110, 200, 210, 220, 220, 100, 90,
         40, 30, 30, 30, 20, 10, 10];
-    
+
+
+    //static Flicker_table = [10, 10, 10, 10, 20, 30, 30, 30, 40, 50, 60, 70, 80, 90, 100, // The table for our normal glowing
+    //    110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+    //    210, 220, 230, 240, 250, 250, 250, 250, 250, 250,
+    //    240, 230, 220, 210, 200, 190, 180, 170, 160, 150,
+    //    140, 130, 120, 110, 100, 90, 80, 70, 60, 50,
+    //    40, 30, 30, 30, 20, 10, 10, 10, 10];
+
+    private maxDelay = 8000;
+    private multiplier = this.maxDelay/250;
+
     public flickerStart(brightness: number) {
 
 
-        this.setState(true);
-        
-        this.flickerBrightness = 0;
-
-        this.flickerTimer = setTimeout(() => this.flickerRoutine(), 1000)
         
         var rndTimer;
         var rndCounter = Math.floor((Math.random() * Pin.Flicker_table.length));;
+
+        this.flickerBrightness = Pin.Flicker_table[rndCounter];
+
+        this.flickerRoutine();
 
         var rndChanger = () => {
 
@@ -244,7 +260,7 @@ export class Pin {
 
             this.flickerBrightness = Pin.Flicker_table[rndCounter];
 
-            var rndDelay = Math.floor((Math.random() * 40)+10);
+            var rndDelay = Math.floor((Math.random() * 50)+20);
 
             //console.log('changing brightness to ' + this.flickerBrightness + ' rndDelay=' + rndDelay);
 
@@ -253,31 +269,24 @@ export class Pin {
 
 
         };
-        rndTimer = setTimeout(rndChanger, 1000);
+        rndTimer = setTimeout(rndChanger, 500);
 
 
     }
 
 
-    public flickerStop() {
-
-        this.setState(false);
-        clearTimeout(this.flickerTimer);
-        clearImmediate(this.flickerTimer);
-        this.flickerTimer = null;
-    }
-
+    
     
     public flickerRoutine() {
 
 
         this.on();
 
-        wiringpi.delayMicroseconds(this.flickerBrightness*40);
+        wiringpi.delayMicroseconds(this.flickerBrightness * this.multiplier);
 
         this.off();
 
-        wiringpi.delayMicroseconds(10000-(this.flickerBrightness*40));
+        wiringpi.delayMicroseconds(this.maxDelay - (this.flickerBrightness * this.multiplier));
             
 
         this.flickerTimer = setImmediate(() => this.flickerRoutine());

@@ -8,24 +8,31 @@ var pumpkinlights;
 
         //var state: boolean[] = [];
         $('.lights label').each(function (i, e) {
-            $(e).bind(touchstartevent, function () {
-                socket.emit('flickerStart', {
-                    number: i,
-                    brightness: parseInt($('#brightness').val())
-                });
+            $(e).bind(touchstartevent, function (evt) {
+                if (evt.clientX >= 200) {
+                    socket.emit('flickerStart', {
+                        number: i,
+                        brightness: parseInt($('#brightness').val())
+                    });
+                } else {
+                    socket.emit('lightOn', {
+                        number: i
+                    });
+                }
             });
 
             $(e).bind(touchendevent, function () {
-                socket.emit('flickerStop', { number: i });
+                socket.emit('lightOff', { number: i });
             });
         });
 
         $('#playmusic').click(function () {
-            $.get('/music/start');
+            socket.emit('playMusic');
         });
 
         $('#stopmusic').click(function () {
-            $.get('/music/stop');
+            socket.emit('stopMusic');
+            // $.get('/music/stop');
         });
 
         var keyDown = [];
