@@ -19,15 +19,6 @@ var app = express();
 app.set('port', process.env.PORT || 80);
 app.use(express.static(path.join(__dirname, 'public')));
 
-//app.get('/light/:number/:dir', function(req, res){
-//    var lightNum = req.params.number;
-//    var value =req.params.dir == 'on';
-//    if (lightNum == 0)
-//        shiftRegister.toggleAll(value);
-//    else
-//        shiftRegister.toggle(lightNum, value);
-//    res.json({ success: true });
-//});
 app.get('/music/:action', function (req, res) {
     var start = req.params.action == 'start';
 
@@ -57,15 +48,13 @@ var io = require("socket.io");
 
 io.listen(server).sockets.on('connection', function (socket) {
     //socket.emit('news', { hello: 'world' });
-    socket.on('togglelight', function (data) {
-        console.log(data);
-
-        if (data.number == 0)
-            shiftRegister.toggleAll();
-else
-            shiftRegister.toggle(data.number);
-    });
-
+    //socket.on('togglelight', function (data) {
+    //    console.log(data);
+    //    if (data.number == 0)
+    //        shiftRegister.toggleAll();
+    //    else
+    //        shiftRegister.toggle(data.number);
+    //});
     var flickerTimers = [];
     socket.on('togglestart', function (data) {
         var lightNum = data.number;
@@ -73,7 +62,14 @@ else
         var flickr = function () {
             shiftRegister.toggle(data.number);
 
-            var rnd = Math.floor((Math.random() * 40) + 10);
+            var isOn = shiftRegister.getState(data.number);
+
+            var maxRnd = isOn ? 500 : 20;
+            var minRnd = isOn ? 1000 : 5;
+
+            var rnd = Math.floor((Math.random() * maxRnd) + minRnd);
+
+            console.log('flicker: light: ' + data.number + ' state: ' + isOn + ' maxRnd: ' + maxRnd + ' minRnd: ' + minRnd + ' rnd: ' + rnd);
 
             flickerTimers[data.number] = setTimeout(flickr, rnd);
         };

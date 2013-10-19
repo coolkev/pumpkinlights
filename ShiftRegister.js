@@ -1,6 +1,22 @@
 var wiringpi = require('wiringpi');
 
 //export module shiftregister {
+function bit_test(num, bit) {
+    return ((num >> bit) % 2 != 0);
+}
+
+function bit_set(num, bit) {
+    return num | 1 << bit;
+}
+
+function bit_clear(num, bit) {
+    return num & ~(1 << bit);
+}
+
+function bit_toggle(num, bit) {
+    return num ^= (1 << bit);
+}
+
 var ShiftRegister = (function () {
     function ShiftRegister(latchPin, clockPin, dataPin, registerCount) {
         if (typeof registerCount === "undefined") { registerCount = 8; }
@@ -8,7 +24,6 @@ var ShiftRegister = (function () {
         this.clockPin = clockPin;
         this.dataPin = dataPin;
         this.registerCount = registerCount;
-        this.prevValues = [];
         this.initLights();
     }
     ShiftRegister.prototype.initLights = function () {
@@ -18,125 +33,57 @@ var ShiftRegister = (function () {
         wiringpi.pinMode(this.clockPin, wiringpi.OUTPUT);
         wiringpi.pinMode(this.dataPin, wiringpi.OUTPUT);
 
-        wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-        wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, 0);
-
-        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-
-        //wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-        //    console.log('shifting out...' + 1);
-        //    wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, 1);
-        //    wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-        //var output = 3 << 2;
-        //var output = 1 << 0;
-        //for (var x = 0; x <=5 ; x++) {
-        //    wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-        //    var value = Math.pow(2, x);
-        //    console.log('shifting out...' + value);
-        //    wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, value);
-        //    wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-        //    wiringpi.delay(500);
-        //}
-        wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-        var value = Math.pow(2, 1) + Math.pow(2, 0);
-
-        console.log('shifting out...' + value);
-
-        wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, value);
-        wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, 0);
-        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-        //for (var x = 0; x < this.registerCount; x++) {
-        //    wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
-        //    wiringpi.digitalWrite(this.dataPin, wiringpi.LOW);
-        //    wiringpi.digitalWrite(this.clockPin, wiringpi.HIGH);
-        //    this.prevValues[x] = false;
-        //}
+        this.currentValue = 0;
+        this.write();
     };
 
-    ShiftRegister.prototype.toggleAll = function () {
-        var value = true;
-        for (var x = 0; x < this.registerCount; x++) {
-            if (this.prevValues[x]) {
-                value = false;
-                break;
-            }
-        }
+    ShiftRegister.prototype.write = function () {
+        //console.log('setting shiftregister value: ' + this.currentValue);
+        wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
 
-        for (x = 0; x < this.registerCount; x++) {
-            this.prevValues[x] = value;
-        }
-        this.toggle(0);
+        wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, this.currentValue);
+        wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, 0);
+
+        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
+    };
+
+    ShiftRegister.prototype.getState = function (lightNum) {
+        if (lightNum == 0)
+            return this.currentValue != 0;
+else
+            return bit_test(this.currentValue, lightNum - 1);
     };
 
     ShiftRegister.prototype.toggle = function (lightNum) {
-        wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
+        if (lightNum == 0) {
+            if (this.currentValue == 0)
+                this.currentValue = Math.pow(2, 8) - 1;
+else
+                this.currentValue = 0;
+        } else
+            this.currentValue = bit_toggle(this.currentValue, lightNum - 1);
 
-        for (var x = 0; x < this.registerCount; x++) {
-            var curValue;
-            if (lightNum == x + 1) {
-                curValue = !this.prevValues[x];
-                this.prevValues[x] = curValue;
-            } else {
-                curValue = this.prevValues[x];
-            }
-            wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
-
-            wiringpi.digitalWrite(this.dataPin, curValue ? wiringpi.HIGH : wiringpi.LOW);
-
-            wiringpi.digitalWrite(this.clockPin, wiringpi.HIGH);
-        }
-
-        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
+        this.write();
     };
 
     ShiftRegister.prototype.on = function (lightNum) {
-        this.onoff(lightNum, true);
+        if (lightNum == 0)
+            this.currentValue = Math.pow(2, 8) - 1;
+else
+            this.currentValue = bit_set(this.currentValue, lightNum - 1);
+
+        this.write();
     };
 
     ShiftRegister.prototype.off = function (lightNum) {
-        this.onoff(lightNum, false);
-    };
-
-    ShiftRegister.prototype.onoff = function (lightNum, on) {
-        wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-        for (var x = 0; x < this.registerCount; x++) {
-            wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
-
-            var curValue;
-            if (lightNum == x + 1) {
-                curValue = on;
-                this.prevValues[x] = curValue;
-            } else {
-                curValue = this.prevValues[x];
-            }
-            wiringpi.digitalWrite(this.dataPin, curValue ? wiringpi.HIGH : wiringpi.LOW);
-
-            wiringpi.digitalWrite(this.clockPin, wiringpi.HIGH);
-        }
-
-        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
+        if (lightNum == 0)
+            this.currentValue = 0;
+else
+            this.currentValue = bit_clear(this.currentValue, lightNum - 1);
+        this.write();
     };
     return ShiftRegister;
 })();
 exports.ShiftRegister = ShiftRegister;
-
-var Pin = (function () {
-    function Pin(num) {
-        this.num = num;
-        this._state = false;
-        this._bitValue = Math.pow(2, num);
-    }
-    Pin.prototype.state = function () {
-        return this._state;
-    };
-
-    Pin.prototype.write = function (value) {
-    };
-    return Pin;
-})();
-exports.Pin = Pin;
 
 //# sourceMappingURL=ShiftRegister.js.map

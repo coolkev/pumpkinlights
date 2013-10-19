@@ -3,12 +3,17 @@ var pumpkinlights;
     $(document).ready(function () {
         var socket = io.connect('http://192.168.0.55/');
 
-        var touchevent = navigator.userAgent.match('iPhone') ? 'touchstart' : 'mousedown';
+        var touchstartevent = navigator.userAgent.match('iPhone') ? 'touchstart' : 'mousedown';
+        var touchendevent = navigator.userAgent.match('iPhone') ? 'touchend' : 'mouseup';
 
         //var state: boolean[] = [];
         $('.lights label').each(function (i, e) {
-            $(e).bind(touchevent, function () {
-                socket.emit('togglelight', { number: i });
+            $(e).bind(touchstartevent, function () {
+                socket.emit('togglestart', { number: i });
+            });
+
+            $(e).bind(touchendevent, function () {
+                socket.emit('toggleend', { number: i });
             });
         });
 

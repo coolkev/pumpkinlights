@@ -2,11 +2,28 @@ import wiringpi = require('wiringpi');
 
 //export module shiftregister {
 
+function bit_test(num: number, bit: number) {
+    return ((num >> bit) % 2 != 0)
+}
+
+function bit_set(num: number, bit: number) {
+    return num | 1 << bit;
+}
+
+function bit_clear(num: number, bit: number) {
+    return num & ~(1 << bit);
+}
+
+function bit_toggle(num: number, bit: number) {
+    return num ^= (1 << bit);
+}
 
 export class ShiftRegister {
 
 
-    private prevValues: boolean[] = [];
+    //private prevValues: boolean[] = [];
+
+    private currentValue: number;
 
     constructor(private latchPin: number, private clockPin: number, private dataPin: number, private registerCount = 8) {
 
@@ -24,100 +41,46 @@ export class ShiftRegister {
         wiringpi.pinMode(this.clockPin, wiringpi.OUTPUT);
         wiringpi.pinMode(this.dataPin, wiringpi.OUTPUT);
 
+        this.currentValue = 0;
+        this.write();
+
+    }
+
+    private write() {
+
+        //console.log('setting shiftregister value: ' + this.currentValue);
+
         wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
 
+        wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, this.currentValue);
         wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, 0);
 
         wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
 
-        //wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-        //    console.log('shifting out...' + 1);
-
-        //    wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, 1);
-        //    wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-
-        //var output = 3 << 2;
-        //var output = 1 << 0;
-
-        //for (var x = 0; x <=5 ; x++) {
-        //    wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-        //    var value = Math.pow(2, x);
-        //    console.log('shifting out...' + value);
-
-        //    wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, value);
-        //    wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-
-        //    wiringpi.delay(500);
-
-        //}
-
-
-            wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-            var value = Math.pow(2,1)+Math.pow(2,0);
-
-            console.log('shifting out...' + value);
-
-            wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, value);
-            wiringpi.shiftOut(this.dataPin, this.clockPin, wiringpi.LSBFIRST, 0);
-            wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-
-        //for (var x = 0; x < this.registerCount; x++) {
-
-        //    wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
-        //    wiringpi.digitalWrite(this.dataPin, wiringpi.LOW);
-        //    wiringpi.digitalWrite(this.clockPin, wiringpi.HIGH);
-        //    this.prevValues[x] = false;
-        //}
-
-
 
     }
 
-    public toggleAll() {
+    public getState(lightNum: number) {
 
-        var value = true;
-        for (var x = 0; x < this.registerCount; x++) {
-            if (this.prevValues[x]) {
-                value = false;
-                break;
-            }
-        }
-
-        for (x = 0; x < this.registerCount; x++) {
-            this.prevValues[x] = value;
-        }
-        this.toggle(0);
+        if (lightNum == 0)
+            return this.currentValue != 0;            
+        else
+            return bit_test(this.currentValue, lightNum-1);
     }
 
     public toggle(lightNum: number) {
 
-
-        wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-        for (var x = 0; x < this.registerCount; x++) {
-
-            var curValue;
-            if (lightNum == x + 1) {
-                curValue = !this.prevValues[x];
-                this.prevValues[x] = curValue;
-
-            }
-            else {
-                curValue = this.prevValues[x];
-            }
-            wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
-
-            wiringpi.digitalWrite(this.dataPin, curValue ? wiringpi.HIGH : wiringpi.LOW);
-
-            wiringpi.digitalWrite(this.clockPin, wiringpi.HIGH);
+        if (lightNum == 0) {
+            if (this.currentValue == 0)
+                this.currentValue = Math.pow(2, 8) - 1;
+            else
+                this.currentValue = 0;
         }
+        else
+            this.currentValue = bit_toggle(this.currentValue, lightNum - 1);
 
-
-        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-
+        this.write();
+        
 
 
     }
@@ -125,71 +88,69 @@ export class ShiftRegister {
 
     public on(lightNum: number) {
 
+        if (lightNum == 0)
+            this.currentValue = Math.pow(2, 8) - 1;
+        else
+            this.currentValue = bit_set(this.currentValue, lightNum - 1);
 
-        this.onoff(lightNum, true);
+        this.write();
 
     }
 
 
     public off(lightNum: number) {
 
-
-        this.onoff(lightNum, false);
-
-    }
-
-    private onoff(lightNum: number, on: boolean) {
-
-
-        wiringpi.digitalWrite(this.latchPin, wiringpi.LOW);
-
-        for (var x = 0; x < this.registerCount; x++) {
-
-            wiringpi.digitalWrite(this.clockPin, wiringpi.LOW);
-
-            var curValue;
-            if (lightNum == x + 1) {
-                curValue = on;
-                this.prevValues[x] = curValue;
-            }
-            else {
-                curValue = this.prevValues[x];
-            }
-            wiringpi.digitalWrite(this.dataPin, curValue ? wiringpi.HIGH : wiringpi.LOW);
-
-            wiringpi.digitalWrite(this.clockPin, wiringpi.HIGH);
-        }
-
-
-        wiringpi.digitalWrite(this.latchPin, wiringpi.HIGH);
-
-
-    }
-
-   
-
-}
-
-export class Pin {
-
-    private _state = false;
-    private _bitValue: number;
-
-    constructor(public num: number) {
-
-        this._bitValue = Math.pow(2, num);
-
-    }
-
-    public state() {
-
-        return this._state;
-    }
-
-    public write(value: boolean) {
-
+        
+        if (lightNum == 0)
+            this.currentValue = 0;
+        else
+            this.currentValue = bit_clear(this.currentValue, lightNum-1);
+        this.write();
 
     }
 
 
 }
+
+//export class Pin {
+
+//    private _state = false;
+//    private _bitValue: number;
+
+//    constructor(public num: number, private shiftRegister: ShiftRegister) {
+
+//        this._bitValue = Math.pow(2, num);
+
+//    }
+
+//    public state() {
+
+//        return this._state;
+//    }
+
+//    public on() {
+
+//        if (lightNum == 0)
+//            this.currentValue = Math.pow(2, 8) - 1;
+//        else
+//            this.currentValue = bit_set(this.currentValue, lightNum - 1);
+
+//        shiftRegister.write();
+
+//    }
+
+
+//    public off() {
+
+
+//        if (lightNum == 0)
+//            this.currentValue = 0;
+//        else
+//            this.currentValue = bit_clear(this.currentValue, lightNum - 1);
+//        this.write();
+
+//    }
+
+
+
+//}
