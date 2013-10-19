@@ -9,11 +9,14 @@ var pumpkinlights;
         //var state: boolean[] = [];
         $('.lights label').each(function (i, e) {
             $(e).bind(touchstartevent, function () {
-                socket.emit('togglestart', { number: i });
+                socket.emit('flickerStart', {
+                    number: i,
+                    brightness: parseInt($('#brightness').val())
+                });
             });
 
             $(e).bind(touchendevent, function () {
-                socket.emit('toggleend', { number: i });
+                socket.emit('flickerStop', { number: i });
             });
         });
 

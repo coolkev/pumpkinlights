@@ -4,7 +4,7 @@ module pumpkinlights {
 
     $(document).ready(function () {
 
-         var socket = io.connect('http://192.168.0.55/');
+         var socket = <Socket>io.connect('http://192.168.0.55/');
 
         var touchstartevent = navigator.userAgent.match('iPhone') ? 'touchstart' : 'mousedown';
         var touchendevent = navigator.userAgent.match('iPhone') ? 'touchend' : 'mouseup';
@@ -15,13 +15,14 @@ module pumpkinlights {
             
             $(e).bind(touchstartevent, function () {
 
-                socket.emit('togglestart', { number: i });
+                socket.emit('flickerStart', {
+                    number: i, brightness: parseInt($('#brightness').val()) });
                 
             });
 
             $(e).bind(touchendevent, function () {
 
-                socket.emit('toggleend', { number: i });
+                socket.emit('flickerStop', { number: i });
 
             });
         });

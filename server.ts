@@ -13,7 +13,7 @@ var spawn = require('child_process').spawn;
 var musicChild;
 
 
-var shiftRegister = new shiftregister.ShiftRegister(7, 11, 12, 16);
+var shiftRegister = new shiftregister.ShiftRegister({ latchPin: 7, clockPin: 11, dataPin: 12, registerCount: 16 });
 
 
 var app = express();
@@ -65,41 +65,25 @@ io.listen(server).sockets.on('connection', function (socket) {
 
     //});
 
-    var flickerTimers: number[] = [];
-    socket.on('togglestart', function (data) {
+    //var flickerTimers: number[] = [];
+    socket.on('flickerStart', function (data) {
 
         var lightNum = data.number;
-
-        var flickr = () => {
-            shiftRegister.toggle(data.number);
-
-            var isOn = shiftRegister.getState(data.number);
-
-            var maxRnd = isOn ? 500 : 20;
-            var minRnd = isOn ? 1000 : 5;
-
-
-            var rnd = Math.floor((Math.random() * maxRnd) + minRnd);
-
-            console.log('flicker: light: ' + data.number + ' state: ' + isOn + ' maxRnd: ' + maxRnd + ' minRnd: ' + minRnd + ' rnd: ' + rnd);
-
-            flickerTimers[data.number] = setTimeout(flickr, rnd);
-        };
-
-        shiftRegister.on(lightNum);
-
-        flickerTimers[data.number] = setTimeout(flickr, 500);       
-            
+        
+        if (lightNum == 0)
+            shiftRegister.all(m=> m.flickerStart(data.brightness));
+        else
+            shiftRegister.pin(lightNum - 1).flickerStart(data.brightness);
 
     });
 
-    socket.on('toggleend', function (data) {
+    socket.on('flickerStop', function (data) {
+        var lightNum = data.number;
 
-        //shiftRegister.toggle(data.number);
-
-        clearTimeout(flickerTimers[data.number]);
-        flickerTimers[data.number] = null;
-        shiftRegister.off(data.number);
+        if (lightNum == 0)
+            shiftRegister.all(m=> m.flickerStop());
+        else
+            shiftRegister.pin(lightNum - 1).flickerStop();
 
     });
 
