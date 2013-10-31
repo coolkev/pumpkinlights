@@ -7,7 +7,7 @@ import shiftregister = require('ShiftRegister');
 import io = require("socket.io");
 
 module pumpkinlights {
-    
+
     var apppath = '/home/pi/app/';
 
     var spawn = require('child_process').spawn;
@@ -103,12 +103,12 @@ module pumpkinlights {
             if (playbackTimer) {
                 clearTimeout(playbackTimer);
             }
-            
+
             stopMusic();
 
         });
 
-        socket.on('getSavedRecordings', function (fn:(s:string[])=>void) {
+        socket.on('getSavedRecordings', function (fn: (s: string[]) => void) {
             console.log('getSavedRecordings');
 
             fs.readdir(apppath + 'recordings', (err, files) => {
@@ -144,12 +144,12 @@ module pumpkinlights {
         });
 
 
-	    socket.on('shutdown', function () {
+        socket.on('shutdown', function () {
 
-	        spawn('shutdown','-h now');
+            spawn('shutdown', ['-h','now']);
 
-	    });
-	    
+        });
+
     });
 
     //startPlayback('full song');
@@ -191,7 +191,7 @@ module pumpkinlights {
 
 
         musicChild = spawn('mpg321', [apppath + 'music/' + file]);
-        
+
     }
 
     function stopMusic() {

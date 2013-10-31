@@ -18,7 +18,6 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="public\js\socket.io.js" />
-    <Content Include="recordings\ShiftRegister.js" />
     <Content Include="Scripts\typings\bootstrap\bootstrap.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\socket.io\socket.io.d.ts" />
     <Content Include="ShiftRegister.js" />
@@ -50,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="music\" />
+    <Folder Include="recordings\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
