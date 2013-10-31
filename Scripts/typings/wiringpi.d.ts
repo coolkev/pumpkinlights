@@ -6,7 +6,8 @@ declare module "wiringpi" {
     function pinMode(pinnum: number, direction: number);
 
     function digitalWrite(pinnum: number, value: number);
-    function delay(ms: number);
+    function delay(milliseconds: number);
+    function delayMicroseconds(microseconds: number);
 
     export var OUTPUT: number;
     export var INPUT: number;

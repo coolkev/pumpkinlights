@@ -4,31 +4,44 @@ module pumpkinlights {
 
     $(document).ready(function () {
 
-         var socket = io.connect('http://192.168.0.55/');
+         var socket = <Socket>io.connect('http://192.168.0.55/');
 
-        var touchevent = navigator.userAgent.match('iPhone') ? 'touchstart' : 'mousedown';
+        var touchstartevent = navigator.userAgent.match('iPhone') ? 'touchstart' : 'mousedown';
+        var touchendevent = navigator.userAgent.match('iPhone') ? 'touchend' : 'mouseup';
 
         //var state: boolean[] = [];
         $('.lights label').each(function (i,e ) {
 
             
-            $(e).bind(touchevent, function () {
+            $(e).bind(touchstartevent, function (evt:JQueryMouseEventObject) {
+                if (evt.clientX >= 200) {
+                    socket.emit('flickerStart', {
+                        number: i, brightness: parseInt($('#brightness').val())
+                    });
+                }
+                else {
+                    socket.emit('lightOn', {
+                        number: i
+                    });
+                }
+            });
 
-                socket.emit('togglelight', { number: i });
-                
+            $(e).bind(touchendevent, function () {
+
+                socket.emit('lightOff', { number: i });
+
             });
         });
 
         $('#playmusic').click(function () {
-
-            $.get('/music/start');
-
+            socket.emit('playMusic');
 
         });
 
         $('#stopmusic').click(function () {
+            socket.emit('stopMusic');
 
-            $.get('/music/stop');
+           // $.get('/music/stop');
 
 
         });

@@ -88,7 +88,7 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy C:\_Git\PumpkinLights1\*.js \\pi\pi\app /Y
-xcopy C:\_Git\PumpkinLights1\public \\pi\pi\app\public /Y /E /I</PostBuildEvent>
+    <PostBuildEvent>xcopy $(ProjectDir)*.js \\pi\pi\app /Y
+xcopy $(ProjectDir)public \\pi\pi\app\public /Y /E /I</PostBuildEvent>
   </PropertyGroup>
 </Project>
