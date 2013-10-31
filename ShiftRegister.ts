@@ -240,7 +240,7 @@ export class Pin {
     private maxDelay = 8000;
     private multiplier = this.maxDelay/250;
 
-    public flickerStart(brightness: number) {
+    public flickerStart() {
 
 
         

@@ -7,4 +7,3 @@ C:\_Git\pumpkinlights\bin\PumpkinLights1.dll
 C:\_Git\pumpkinlights\bin\PumpkinLights1.pdb
 C:\_Git\pumpkinlights\obj\Debug\PumpkinLights1.dll
 C:\_Git\pumpkinlights\obj\Debug\PumpkinLights1.pdb
-C:\_Git\pumpkinlights\obj\Debug\PumpkinLights1.csprojResolveAssemblyReference.cache
