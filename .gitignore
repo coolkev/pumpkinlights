@@ -1,2 +1,9 @@
 bin/
 obj/
+
+obj
+*.js.map
+ShiftRegister.js
+server.js
+public/js/app.js
+PumpkinLights1.v11.suo

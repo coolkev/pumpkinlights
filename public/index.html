@@ -43,17 +43,29 @@
 
         
         <div style="margin-top:40px;">
+            
+            Music: 
+            <select id="musicFiles" style="max-width:200px">
+                <option></option>
+            </select>
+
             <input type="button" id="playmusic" value="Play" class="btn btn-success btn-block btn-lg"/>
             <input type="button" id="stopmusic" value="Stop" class="btn btn-danger btn-block btn-lg"/>
         </div>
 
-                <div style="margin-top:40px;">
-                    brightness: <input id="brightness" type="number" value="10"/>
-
+        <div style="margin-top:40px;">
             
-                </div>
+            Saved Recordings: 
+            <select id="savedRecordings" style="max-width:200px">
+                <option></option>
+            </select>
+            
+            <input type="button" id="saveRecording" value="Save Recording" class="btn btn-success btn-block btn-lg"/>
+
+            <input type="button" id="startPlayback" value="Start playback" class="btn btn-success btn-block btn-lg"/>
+            <input type="button" id="stopPlayback" value="Stop playback" class="btn btn-danger btn-block btn-lg"/>
+        </div>
         
-        <div id="keylog"></div>
     </body>
 
 </html>
