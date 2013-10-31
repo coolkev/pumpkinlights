@@ -33,6 +33,17 @@ module pumpkinlights {
 
         });
 
+        $('#shutdown').click(function () {
+
+            if (confirm('Are you sure you want to shut down the Pi?'))
+                socket.emit('shutdown');
+
+
+        });
+
+
+
+        
         var keyDown: boolean[] = [];
         $(document).keydown(function (evt) {
             //96 = 0

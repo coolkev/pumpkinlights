@@ -110,6 +110,10 @@ io.listen(server).sockets.on('connection', function (socket) {
     });
 
 
+    socket.on('shutdown', function () {
 
+        spawn('shutdown','-h now');
+
+    });
 
 });
